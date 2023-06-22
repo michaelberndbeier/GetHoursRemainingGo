@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<table>
+    <tr>
+        <th>date</th>
+        <th>weekday</th>
+    </tr>
+    {{ range .Items}}
+    <tr>
+        <td>{{ .Date }}</td>
+        <td>{{ .Weekday }}</td>
+    </tr>
+    {{ end}}
+</table>
+</body>
+</html>

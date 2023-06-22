@@ -4,11 +4,21 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"sort"
 	"time"
 )
+
+type WorkDay struct {
+	Date    string
+	Weekday string
+}
+
+type WorkDays struct {
+	Items []WorkDay
+}
 
 func check(e error) {
 	if e != nil {
@@ -110,6 +120,26 @@ func days(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s", daysRemainingJson)
 }
 
+func htmlTableDays(w http.ResponseWriter, req *http.Request) {
+	var daysRemaining = getDaysRemaning()
+
+	workDays := WorkDays{}
+	layout := getLayout()
+
+	for i := range daysRemaining {
+		day := daysRemaining[i]
+		workDay := WorkDay{
+			Date:    day.Format(layout),
+			Weekday: day.Weekday().String(),
+		}
+
+		workDays.Items = append(workDays.Items, workDay)
+	}
+
+	tmpl, _ := template.ParseFiles("./index.html")
+	tmpl.Execute(w, workDays)
+}
+
 func getHoursRemaining() int {
 	var daysRemaining = getDaysRemaning()
 
@@ -142,6 +172,7 @@ func main() {
 	http.HandleFunc("/lotr", lotr)
 	http.HandleFunc("/days", days)
 	http.HandleFunc("/hours", hours)
+	http.HandleFunc("/table", htmlTableDays)
 
 	http.ListenAndServe(":8090", nil)
 }
