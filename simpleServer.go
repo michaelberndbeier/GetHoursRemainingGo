@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -19,9 +20,10 @@ func compareDays(i int, j int) bool {
 	return i < j
 }
 
-func getDaysRemaining() int {
-
-	layout := "02.01.2006"
+func getLayout() string {
+	return "02.01.2006"
+}
+func getVacationDays() []time.Time {
 	vacDayListPath := "vacationDays.csv"
 
 	file, err := os.Open(vacDayListPath)
@@ -35,11 +37,11 @@ func getDaysRemaining() int {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		vacationDay, error := time.Parse(layout, line)
+		vacationDay, error := time.Parse(getLayout(), line)
 
 		if error != nil {
 			fmt.Println(error)
-			return 0
+			return vacationDays
 		}
 		vacationDays = append(vacationDays, vacationDay)
 	}
@@ -48,23 +50,28 @@ func getDaysRemaining() int {
 		return vacationDays[i].Unix() < vacationDays[j].Unix()
 	})
 
+	return vacationDays
+}
+
+func getDaysRemaning() []time.Time {
+	var daysRemaining []time.Time
+
 	now := time.Now()
-	todayString := now.Format(layout)
-	today, error := time.Parse(layout, todayString)
+	todayString := now.Format(getLayout())
+	today, error := time.Parse(getLayout(), todayString)
 	if error != nil {
 		fmt.Println(error)
-		return 0
+		return daysRemaining
 	}
+	vacationDays := getVacationDays()
 
-	tomorrow := today.AddDate(0, 0, 1)
+	// tomorrow := today.AddDate(0, 0, 1)
 	maxVacDay := vacationDays[len(vacationDays)-1]
 
 	fmt.Println(today)
 	fmt.Println(maxVacDay)
 
-	var daysUntil []time.Time
-
-	nextDay := tomorrow
+	nextDay := today
 	for nextDay.Unix() <= maxVacDay.Unix() {
 		switch nextDay.Weekday() {
 		case time.Saturday:
@@ -72,31 +79,69 @@ func getDaysRemaining() int {
 			break
 		default:
 			if contains(vacationDays, nextDay) == false {
-				daysUntil = append(daysUntil, nextDay)
+				daysRemaining = append(daysRemaining, nextDay)
 			}
 		}
 
 		nextDay = nextDay.AddDate(0, 0, 1)
 	}
-
-	return len(daysUntil)
+	return daysRemaining
 }
 
-func web(w http.ResponseWriter, req *http.Request) {
-	daysRemaining := getDaysRemaining()
+func getNumberOfRemainingDays() int {
+	return len(getDaysRemaning())
+}
+
+func numDays(w http.ResponseWriter, req *http.Request) {
+	daysRemaining := getNumberOfRemainingDays()
 	fmt.Fprintf(w, "%v", daysRemaining)
 }
 
 func lotr(w http.ResponseWriter, req *http.Request) {
-	daysRemaining := getDaysRemaining()
 	lotrExtendedAllTitlesLength := 715
-	lotr := float32((daysRemaining * 8 * 60)) / float32(lotrExtendedAllTitlesLength)
+	lotr := float32((getHoursRemaining() * 60)) / float32(lotrExtendedAllTitlesLength)
 	fmt.Fprintf(w, "Only %v LOTR watch-throughs!! (Extended obviously)", lotr)
 }
 
+func days(w http.ResponseWriter, req *http.Request) {
+	var daysRemaining = getDaysRemaning()
+	var daysRemainingJson, _ = json.Marshal(daysRemaining)
+
+	fmt.Fprintf(w, "%s", daysRemainingJson)
+}
+
+func getHoursRemaining() int {
+	var daysRemaining = getDaysRemaning()
+
+	var layout = getLayout()
+	var now = time.Now()
+	var today, _ = time.Parse(layout, time.Now().Format(layout))
+
+	var hoursAlreadyWorkedToday = 0
+	if today.Unix() == daysRemaining[0].Unix() {
+		var thisHour = now.Hour()
+
+		var calcedHoursSinceStartOfWorkday = thisHour - 6
+		if calcedHoursSinceStartOfWorkday > 0 && calcedHoursSinceStartOfWorkday < 11 {
+			hoursAlreadyWorkedToday = calcedHoursSinceStartOfWorkday
+		}
+	}
+
+	var numDaysRemaining = len(daysRemaining)
+	var hoursForDaysRemaining = numDaysRemaining * 8.0
+	var calcedHoursRemaining = hoursForDaysRemaining - hoursAlreadyWorkedToday
+
+	return calcedHoursRemaining
+}
+func hours(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "%v hours left", getHoursRemaining())
+}
+
 func main() {
-	http.HandleFunc("/web", web)
+	http.HandleFunc("/numDays", numDays)
 	http.HandleFunc("/lotr", lotr)
+	http.HandleFunc("/days", days)
+	http.HandleFunc("/hours", hours)
 
 	http.ListenAndServe(":8090", nil)
 }
