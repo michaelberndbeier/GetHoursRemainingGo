@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <style>
+
         .greetings-center {
             width: 100%;
             display: flex;
@@ -63,12 +64,12 @@
             border-bottom: 2px solid #009879;
         }
 
+
         .styled-table {
             border-collapse: collapse;
             margin: 25px 0;
-            font-size: 0.9em;
             font-family: sans-serif;
-            min-width: 400px;
+            min-width: 800px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
         }
 
@@ -101,28 +102,55 @@
             display: flex;
         }
 
-
         .flex-inner-container-text {
             text-align: center;
             padding: 40px;
 
         }
 
-        .marquee span {
-            padding: 0 2vw;
+        .box1 {
+            background: blue;
         }
 
-        .marquee:hover .marquee__inner {
-            animation-play-state: running;
+        .box2 {
+            background: grey;
         }
 
-        @keyframes marquee {
-            0% {
-                transform: translate3d(var(--move-initial), 0, 0);
+        .box3 {
+            background: green;
+        }
+
+        .box4 {
+            background: yellow;
+        }
+        @media only screen and (max-width: 767px) {
+
+            .styled-table {
+               max-width: 300px;
             }
 
-            100% {
-                transform: translate3d(var(--move-final), 0, 0);
+            .flex-inner-container {
+                flex: 1 0 48%;
+                margin: 5px;
+                height: 300px;
+                background: lightgray;
+                align-items: center;
+                justify-content: center;
+                display: flex;
+            }
+
+            .times {
+                font-size: large;
+            }
+
+            .flex-inner-container-text-times {
+                font-size: 25px;
+            }
+
+
+            .flex-inner-container-text-what {
+                font-size: 25px;
+                font-family: "Bauhaus 93"
             }
         }
     </style>
@@ -134,12 +162,14 @@
 <div class="greetings-center" >
 
     <h1>Only {{ .Hours }} hours punched in left.</h1>
+</div>
+<div class="greetings-center" >
     <h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
 </div>
 <div >
     <div class="flex-container" aria-hidden="true">
         {{ range .MarqueeTexts }}
-        <div class="flex-inner-container">
+        <div class="flex-inner-container {{ .CSSClassId }}">
             <div class="flex-inner-container-text">
                 <div class="flex-inner-container-text-times" >
                     {{ .HowManyTimes }}
@@ -154,7 +184,9 @@
         {{ end }}
     </div>
 </div>
+<div class="center-my-table" >
 <h2>{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
+</div>
 <div class="center-my-table" >
 <table class="styled-table">
     <thead>

@@ -25,6 +25,7 @@ type WorkDays struct {
 type MarqueeText struct {
 	What         string
 	HowManyTimes float32
+	CSSClassId   string
 }
 
 type DataForIndex struct {
@@ -174,11 +175,17 @@ func numDays(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%v", daysRemaining)
 }
 
-func getMinutesBasedText(what string, minutesToDoItOnce float32) MarqueeText {
+func getMinutesBasedText(what string, minutesToDoItOnce float32, id int) MarqueeText {
 	var retVal = MarqueeText{}
 
 	retVal.HowManyTimes = float32((getHoursRemaining(getWorkDaysRemaining()) * 60)) / float32(minutesToDoItOnce)
 	retVal.What = what
+
+	var templateSuffix = id % 5
+	var templateId = fmt.Sprintln("box", templateSuffix)
+	templateId = strings.ReplaceAll(templateId, " ", "")
+
+	retVal.CSSClassId = templateId
 
 	return retVal
 }
@@ -214,8 +221,8 @@ func getRatioTexts() []MarqueeText {
 
 	retVals := []MarqueeText{}
 
-	for _, e := range activitiesCached {
-		retVals = append(retVals, getMinutesBasedText(e.what, e.duration))
+	for i, e := range activitiesCached {
+		retVals = append(retVals, getMinutesBasedText(e.what, e.duration, i))
 	}
 
 	return retVals
