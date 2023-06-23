@@ -6,7 +6,6 @@
             font-family: "Times New Roman";
         }
         body {
-            background: gainsboro;
             font-family: Calibri;
         }
         table {
@@ -23,21 +22,36 @@
             font-size: large;
         }
 
-        .marquee {
-            position: relative;
-            overflow: hidden;
-            --offset: 20vw;
-            --move-initial: calc(-25% + var(--offset));
-            --move-final: calc(-50% + var(--offset));
+        .flex-inner-container-text-times {
+            font-size: 35px;
         }
 
-        .marquee__inner {
-            width: fit-content;
+
+        .flex-inner-container-text-what {
+            font-size: 35px;
+            font-family: "Bauhaus 93"
+        }
+
+        .flex-container {
             display: flex;
-            position: relative;
-            transform: translate3d(var(--move-initial), 0, 0);
-            animation: marquee 5s linear infinite;
-            animation-play-state: paused;
+            flex-wrap: wrap;
+        }
+
+        .flex-inner-container {
+            flex: 1 0 31%;
+            margin: 5px;
+            height: 300px;
+            background: lightgray;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+        }
+
+
+        .flex-inner-container-text {
+            text-align: center;
+            padding: 40px;
+
         }
 
         .marquee span {
@@ -63,22 +77,28 @@
 <body>
 
 
-    <h1>Only {{ .Hours }} hours punched in left.</h1>
-    <h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
-    <div class="marquee" >
-    <div class="marquee__inner" aria-hidden="true">
+<h1>Only {{ .Hours }} hours punched in left.</h1>
+<h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
+<div >
+    <div class="flex-container" aria-hidden="true">
         {{ range .MarqueeTexts }}
-        <span>
-            {{ .HowManyTimes }}
-            </br>
-            <div class="times">X</div>
-            {{ .What }}
-        </span>
+        <div class="flex-inner-container">
+            <div class="flex-inner-container-text">
+                <div class="flex-inner-container-text-times" >
+                    {{ .HowManyTimes }}
+                </div>
+                </br>
+                <div class="times">X</div>
+                <div class="flex-inner-container-text-what" >
+                {{ .What }}
+                    </div>
+            </div>
+        </div>
         {{ end }}
     </div>
-    </div>
-    <h2>{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
-    <table>
+</div>
+<h2>{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
+<table>
     <tr>
         <th>date</th>
         <th>weekday</th>
@@ -89,6 +109,6 @@
         <td>{{ .Weekday }}</td>
     </tr>
     {{ end}}
-    </table>
+</table>
 </body>
 </html>
