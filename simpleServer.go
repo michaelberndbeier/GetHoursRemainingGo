@@ -22,18 +22,24 @@ type WorkDays struct {
 	Items []WorkDay
 }
 
-type MarqueeText struct {
+type ActivityBox struct {
 	What         string
 	HowManyTimes float32
 	CSSClassId   string
 }
 
+type DistanceSection struct {
+	DistanceItems []DistanceItem
+	MaxDistance   int
+}
+
 type DataForIndex struct {
 	Days                     WorkDays
 	Hours                    int
-	MarqueeTexts             []MarqueeText
+	ActivityBoxes            []ActivityBox
 	HoursUntilNextEmployment int
 	NumOfWorkDays            int
+	Distances                DistanceSection
 }
 
 func check(e error) {
@@ -175,8 +181,8 @@ func numDays(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%v", daysRemaining)
 }
 
-func getMinutesBasedText(what string, minutesToDoItOnce float32, id int) MarqueeText {
-	var retVal = MarqueeText{}
+func getMinutesBasedText(what string, minutesToDoItOnce float32, id int) ActivityBox {
+	var retVal = ActivityBox{}
 
 	retVal.HowManyTimes = float32((getHoursRemaining(getWorkDaysRemaining()) * 60)) / float32(minutesToDoItOnce)
 	retVal.What = what
@@ -217,9 +223,9 @@ func getWorkDays() WorkDays {
 
 var activitiesCached = readActivitiesCSV()
 
-func getRatioTexts() []MarqueeText {
+func getRatioTexts() []ActivityBox {
 
-	retVals := []MarqueeText{}
+	retVals := []ActivityBox{}
 
 	for i, e := range activitiesCached {
 		retVals = append(retVals, getMinutesBasedText(e.what, e.duration, i))
@@ -233,12 +239,35 @@ func changeSite(w http.ResponseWriter, req *http.Request) {
 	data.Days = getWorkDays()
 	data.Hours = getHoursRemaining(getWorkDaysRemaining())
 	data.HoursUntilNextEmployment = getHoursUntilNextEmployment()
-	data.MarqueeTexts = getRatioTexts()
+	data.ActivityBoxes = getRatioTexts()
 	data.NumOfWorkDays = len(data.Days.Items)
+	data.Distances = buildDistanceSections()
 
 	tmpl, _ := template.ParseFiles("./index.html")
 	tmpl.Execute(w, data)
 	fmt.Println("reload")
+}
+
+func buildDistanceSections() DistanceSection {
+	var distanceItems = buildDistanceItems()
+
+	var retVal = DistanceSection{
+		DistanceItems: distanceItems,
+	}
+
+	return retVal
+}
+
+func getMinDistance(items []DistanceItem) int {
+	var maxVal float32 = 0.0
+
+	for _, e := range items {
+		if maxVal < e.Distance {
+			maxVal = e.Distance
+		}
+	}
+
+	return int(maxVal)
 }
 
 func getHoursUntilNextEmployment() int {
@@ -271,16 +300,97 @@ func hours(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%v Hours left", getHoursRemaining(getWorkDaysRemaining()))
 }
 
-func main() {
-
-	http.HandleFunc("/change", changeSite)
-
-	http.ListenAndServe(":8090", nil)
-}
-
 type ActivityItem struct {
 	what     string
 	duration float32
+}
+
+type SpeedItem struct {
+	what  string
+	speed float32
+}
+
+func readSpeedsCSV() []SpeedItem {
+	var speedsCSV = "./speeds.csv"
+	file, err := os.Open(speedsCSV)
+	check(err)
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var speedItems = []SpeedItem{}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		var splitted = strings.Split(line, ";")
+
+		if len(splitted) == 2 {
+			var what = splitted[0]
+			var speedText = splitted[1]
+			var speed, err = strconv.ParseFloat(speedText, 32)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			speedItem := SpeedItem{
+				what:  what,
+				speed: float32(speed),
+			}
+			speedItems = append(speedItems, speedItem)
+		}
+
+	}
+
+	return speedItems
+}
+
+type DistanceItem struct {
+	What                   string
+	Speed                  float32
+	Distance               float32
+	FractionOfMax          float32
+	RepetitionsForDistance string
+	Hours                  int
+}
+
+var speedItemsCached = readSpeedsCSV()
+
+func buildDistanceItems() []DistanceItem {
+	var distanceItemsWithoutFractions []DistanceItem
+
+	var hoursRemaining = getHoursRemaining(getDaysRemaining())
+
+	for i := range speedItemsCached {
+		var distance = speedItemsCached[i].speed * float32(hoursRemaining)
+
+		var distanceItem = DistanceItem{
+			What:     speedItemsCached[i].what,
+			Speed:    speedItemsCached[i].speed,
+			Distance: distance,
+			Hours:    hoursRemaining,
+		}
+
+		distanceItemsWithoutFractions = append(distanceItemsWithoutFractions, distanceItem)
+	}
+	// 	var minDistance = getMinDistance(distanceItemsWithoutFractions)
+
+	var distanceItems []DistanceItem
+	for _, e := range distanceItemsWithoutFractions {
+		var fractionOfMax = (e.Distance / float32(10))
+
+		var distanceItem = DistanceItem{
+			What:                   e.What,
+			Speed:                  e.Speed,
+			Distance:               e.Distance,
+			Hours:                  e.Hours,
+			FractionOfMax:          fractionOfMax,
+			RepetitionsForDistance: strings.Repeat(e.What, int(fractionOfMax)),
+		}
+		distanceItems = append(distanceItems, distanceItem)
+	}
+
+	return distanceItems
 }
 
 func readActivitiesCSV() []ActivityItem {
@@ -319,4 +429,10 @@ func readActivitiesCSV() []ActivityItem {
 
 	return activityItems
 
+}
+func main() {
+
+	http.HandleFunc("/change", changeSite)
+
+	http.ListenAndServe(":8090", nil)
 }
