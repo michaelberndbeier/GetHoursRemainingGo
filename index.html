@@ -1,13 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        h1 {
+            font-family: "Times New Roman";
+        }
+        body {
+            background: gainsboro;
+            font-family: Calibri;
+        }
+        table {
+            background: bisque;
+        }
+        tr {
+            background: beige;
+        }
+        td, td {
+            border: blanchedalmond;
+        }
+
+        .times {
+            font-size: large;
+        }
+
+        .marquee {
+            position: relative;
+            overflow: hidden;
+            --offset: 20vw;
+            --move-initial: calc(-25% + var(--offset));
+            --move-final: calc(-50% + var(--offset));
+        }
+
+        .marquee__inner {
+            width: fit-content;
+            display: flex;
+            position: relative;
+            transform: translate3d(var(--move-initial), 0, 0);
+            animation: marquee 5s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .marquee span {
+            padding: 0 2vw;
+        }
+
+        .marquee:hover .marquee__inner {
+            animation-play-state: running;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translate3d(var(--move-initial), 0, 0);
+            }
+
+            100% {
+                transform: translate3d(var(--move-final), 0, 0);
+            }
+        }
+    </style>
+    <title>{{ .Hours }}</title>
 </head>
 <body>
-<table>
 
 
-    <h1>Only {{ .Hours }} hours left.</h1>
-    <h2>{{ .LOTR }}</h2>
+    <h1>Only {{ .Hours }} hours punched in left.</h1>
+    <h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
+    <div class="marquee" >
+    <div class="marquee__inner" aria-hidden="true">
+        {{ range .MarqueeTexts }}
+        <span>
+            {{ .HowManyTimes }}
+            </br>
+            <div class="times">X</div>
+            {{ .What }}
+        </span>
+        {{ end }}
+    </div>
+    </div>
+    <h2>{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
+    <table>
     <tr>
         <th>date</th>
         <th>weekday</th>
@@ -18,5 +89,6 @@
         <td>{{ .Weekday }}</td>
     </tr>
     {{ end}}
+    </table>
 </body>
 </html>
