@@ -2,12 +2,23 @@
 <html lang="en">
 <head>
     <style>
+        body {
+            background-color: azure;
+        }
 
         .greetings-center {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: "Droid Sans Mono";
+            font-size: large;
+        }
+
+        .greetings-center-hours {
+            font-family: Serif;
+            font-size: xxx-large;
+            font-style: italic;
         }
 
         .center-my-table
@@ -75,21 +86,28 @@
 
         .times {
             font-size: large;
+            font-family: Serif;
         }
 
         .flex-inner-container-text-times {
-            font-size: 35px;
+            font-size: x-large;
         }
 
 
         .flex-inner-container-text-what {
-            font-size: 35px;
+            font-size: x-large;
             font-family: "Bauhaus 93"
+
+        }
+
+        .flex-section
+        {
         }
 
         .flex-container {
             display: flex;
             flex-wrap: wrap;
+            margin: 10%;
         }
 
         .flex-inner-container {
@@ -108,32 +126,41 @@
 
         }
 
+
+        .box0 {
+            background: #50A672;
+            color: whitesmoke;
+        }
+
         .box1 {
-            background: blue;
+            background: #316646;
+            color:antiquewhite;
         }
 
         .box2 {
-            background: grey;
+            background: #74F2A7;
+            color:dimgrey;
         }
 
         .box3 {
-            background: green;
+            background: #62CC8C;
+            color: darkslategrey;
         }
 
         .box4 {
-            background: yellow;
+            background: #6EE59E;
+            color: black;
         }
         @media only screen and (max-width: 767px) {
 
             .styled-table {
-               max-width: 300px;
+                max-width: 300px;
             }
 
             .flex-inner-container {
                 flex: 1 0 48%;
                 margin: 5px;
                 height: 300px;
-                background: lightgray;
                 align-items: center;
                 justify-content: center;
                 display: flex;
@@ -153,6 +180,32 @@
                 font-family: "Bauhaus 93"
             }
         }
+        @media only screen and (min-width: 1200px) {
+
+            .flex-inner-container {
+                flex: 1 0 20%;
+                margin: 5px;
+                height: 300px;
+                align-items: center;
+                justify-content: center;
+                display: flex;
+            }
+
+            .times {
+                font-size: large;
+            }
+
+            .flex-inner-container-text-times {
+                font-size: 25px;
+            }
+
+
+            .flex-inner-container-text-what {
+                font-size: 25px;
+                font-family: "Bauhaus 93"
+            }
+        }
+
     </style>
     <title>{{ .Hours }}</title>
 </head>
@@ -160,50 +213,53 @@
 
 
 <div class="greetings-center" >
-
-    <h1>Only {{ .Hours }} hours punched in left.</h1>
+    <h1>Only <div class="greetings-center-hours">{{ .Hours }} hours</div> punched in left.</h1>
+    <a href="#workDaysSection" target="_blank" rel="noopener">📅</a>
 </div>
 <div class="greetings-center" >
     <h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
 </div>
 <div >
-    <div class="flex-container" aria-hidden="true">
-        {{ range .MarqueeTexts }}
-        <div class="flex-inner-container {{ .CSSClassId }}">
-            <div class="flex-inner-container-text">
-                <div class="flex-inner-container-text-times" >
-                    {{ .HowManyTimes }}
-                </div>
-                </br>
-                <div class="times">X</div>
-                <div class="flex-inner-container-text-what" >
-                {{ .What }}
+    <div class="flex-section">
+
+        <div class="flex-container" aria-hidden="true">
+            {{ range .MarqueeTexts }}
+            <div class="flex-inner-container {{ .CSSClassId }}">
+                <div class="flex-inner-container-text">
+                    <div class="flex-inner-container-text-times" >
+                        {{ .HowManyTimes }}
                     </div>
+                    </br>
+                    <div class="times">X</div>
+                    <div class="flex-inner-container-text-what" >
+                        {{ .What }}
+                    </div>
+                </div>
             </div>
+            {{ end }}
         </div>
-        {{ end }}
     </div>
 </div>
 <div class="center-my-table" >
-<h2>{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
+    <h2 id="workDaysSection">{{ .NumOfWorkDays }} days left for me as an employee to "go to work".</h2>
 </div>
 <div class="center-my-table" >
-<table class="styled-table">
-    <thead>
-    <tr>
-        <th>date</th>
-        <th>weekday</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{ range .Days.Items}}
-    <tr>
-        <td>{{ .Date }}</td>
-        <td>{{ .Weekday }}</td>
-    </tr>
-    {{ end}}
-    </tbody>
-</table>
+    <table class="styled-table">
+        <thead>
+        <tr>
+            <th>date</th>
+            <th>weekday</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ range .Days.Items}}
+        <tr>
+            <td>{{ .Date }}</td>
+            <td>{{ .Weekday }}</td>
+        </tr>
+        {{ end}}
+        </tbody>
+    </table>
 </div>
 </body>
 </html>
