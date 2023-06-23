@@ -238,6 +238,7 @@ func changeSite(w http.ResponseWriter, req *http.Request) {
 
 	tmpl, _ := template.ParseFiles("./index.html")
 	tmpl.Execute(w, data)
+	fmt.Println("reload")
 }
 
 func getHoursUntilNextEmployment() int {

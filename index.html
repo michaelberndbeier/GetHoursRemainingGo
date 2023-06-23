@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="refresh" content="3599" />
     <style>
 
 
@@ -22,6 +23,10 @@
             }
         }
 
+        .calendarEmoji {
+            font-size: 320%;
+            scroll-behavior: smooth;
+        }
 
         .greetings-center {
             width: 100%;
@@ -210,7 +215,7 @@
 
 <div class="greetings-center" >
     <h1>Only <div class="greetings-center-hours">{{ .Hours }} hours</div> punched in left.</h1>
-    <a href="#workDaysSection" target="_blank" rel="noopener">📅</a>
+        <a class="calendarEmoji" href="#workDaysSection" >📅</a>
 </div>
 <div class="greetings-center" >
     <h2>In {{ .HoursUntilNextEmployment }} hours I will leave this job.</h2>
