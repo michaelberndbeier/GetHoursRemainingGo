@@ -2,9 +2,26 @@
 <html lang="en">
 <head>
     <style>
+
+
         body {
-            background-color: azure;
+            background: linear-gradient(-45deg, azure, beige, white, whitesmoke);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
         }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
 
         .greetings-center {
             width: 100%;
@@ -115,7 +132,14 @@
             align-items: center;
             justify-content: center;
             display: flex;
+            opacity: 0.9;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
         }
+
+        .flex-inner-container:hover {
+            opacity: 1;
+        }
+
 
         .flex-inner-container-text {
             text-align: center;
