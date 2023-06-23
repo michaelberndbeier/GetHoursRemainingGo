@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+</head>
 <body>
 <table>
+
+
+    <h1>Only {{ .Hours }} hours left.</h1>
+    <h2>{{ .LOTR }}</h2>
     <tr>
         <th>date</th>
         <th>weekday</th>
     </tr>
-    {{ range .Items}}
+    {{ range .Days.Items}}
     <tr>
         <td>{{ .Date }}</td>
         <td>{{ .Weekday }}</td>
     </tr>
     {{ end}}
-</table>
 </body>
 </html>

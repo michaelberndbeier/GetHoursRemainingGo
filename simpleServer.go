@@ -20,6 +20,12 @@ type WorkDays struct {
 	Items []WorkDay
 }
 
+type DataForIndex struct {
+	Days  WorkDays
+	LOTR  string
+	Hours int
+}
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -107,10 +113,17 @@ func numDays(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%v", daysRemaining)
 }
 
-func lotr(w http.ResponseWriter, req *http.Request) {
+func getLOTR() string {
+
 	lotrExtendedAllTitlesLength := 715
 	lotr := float32((getHoursRemaining() * 60)) / float32(lotrExtendedAllTitlesLength)
-	fmt.Fprintf(w, "Only %v LOTR watch-throughs!! (Extended obviously)", lotr)
+	text := fmt.Sprintf("Only %v LOTR watch-throughs!! (Extended obviously)", lotr)
+
+	return text
+}
+
+func lotr(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, getLOTR())
 }
 
 func days(w http.ResponseWriter, req *http.Request) {
@@ -120,7 +133,7 @@ func days(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s", daysRemainingJson)
 }
 
-func htmlTableDays(w http.ResponseWriter, req *http.Request) {
+func getWorkDays() WorkDays {
 	var daysRemaining = getDaysRemaning()
 
 	workDays := WorkDays{}
@@ -135,9 +148,17 @@ func htmlTableDays(w http.ResponseWriter, req *http.Request) {
 
 		workDays.Items = append(workDays.Items, workDay)
 	}
+	return workDays
+}
+
+func htmlTableDays(w http.ResponseWriter, req *http.Request) {
+	data := DataForIndex{}
+	data.Days = getWorkDays()
+	data.LOTR = getLOTR()
+	data.Hours = getHoursRemaining()
 
 	tmpl, _ := template.ParseFiles("./index.html")
-	tmpl.Execute(w, workDays)
+	tmpl.Execute(w, data)
 }
 
 func getHoursRemaining() int {
@@ -164,7 +185,7 @@ func getHoursRemaining() int {
 	return calcedHoursRemaining
 }
 func hours(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "%v hours left", getHoursRemaining())
+	fmt.Fprintf(w, "%v Hours left", getHoursRemaining())
 }
 
 func main() {
