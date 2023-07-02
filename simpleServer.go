@@ -272,7 +272,16 @@ func getMinDistance(items []DistanceItem) int {
 
 func getHoursUntilNextEmployment() int {
 	var daysLeft = getDaysRemaining()
-	return getHoursRemaining(daysLeft)
+	return getAllHoursRemaining(daysLeft)
+}
+
+func getAllHoursRemaining(left []time.Time) int {
+	var lastDay = left[len(left) - 1]
+	var now = time.Now()
+
+	var firstWorkDay = lastDay.AddDate(0, 0, 1)
+
+	return int(firstWorkDay.Sub(now).Hours())
 }
 
 func getHoursRemaining(daysLeft []time.Time) int {
